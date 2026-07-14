@@ -1,0 +1,32 @@
+# Dependencies and frontend output
+node_modules/
+dist/
+
+# Rust and Tauri output
+src-tauri/target/
+target/
+
+# Local databases and environment files
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.*
+!.env.example
+
+# Logs and coverage
+*.log
+coverage/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local certificates and signing material
+*.pfx
+*.p12
+*.pem
+*.key
