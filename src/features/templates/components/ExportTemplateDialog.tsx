@@ -23,6 +23,7 @@ import {
 } from "@/features/templates/templateSchema";
 import { errorMessage } from "@/lib/errors";
 import type { Workspace } from "@/types/workspace";
+import { useI18n } from "@/features/i18n/i18n";
 
 const defaultValues: ExportTemplateFormValues = {
   name: "",
@@ -37,6 +38,7 @@ function safeFileName(value: string): string {
 }
 
 export function ExportTemplateDialog({ workspace }: { workspace: Workspace }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const {
@@ -78,32 +80,28 @@ export function ExportTemplateDialog({ workspace }: { workspace: Workspace }) {
       <DialogTrigger asChild>
         <Button variant="secondary">
           <Download className="size-4" aria-hidden="true" />
-          템플릿으로 내보내기
+          {t("exportTemplate")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>워크스페이스 템플릿 내보내기</DialogTitle>
-          <DialogDescription>워크스페이스와 리소스 구성만 JSON으로 저장합니다.</DialogDescription>
+          <DialogTitle>{t("exportWorkspaceTemplate")}</DialogTitle>
+          <DialogDescription>{t("exportTemplateDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden="true" />
-          <p>
-            등록된 애플리케이션, 파일 및 폴더의 로컬 경로가 템플릿에 포함될 수 있습니다.
-            <br />
-            외부에 공유하기 전에 경로에 개인정보가 포함되어 있지 않은지 확인하세요.
-          </p>
+          <p>{t("templatePrivacyWarning")}</p>
         </div>
 
         <form onSubmit={(event) => void onSubmit(event)} className="space-y-4">
           <label className="block space-y-1.5 text-sm">
-            <span className="font-medium">템플릿 이름</span>
+            <span className="font-medium">{t("templateName")}</span>
             <Input {...register("name")} disabled={isExporting} />
             {errors.name && <span className="text-destructive text-xs">{errors.name.message}</span>}
           </label>
           <label className="block space-y-1.5 text-sm">
-            <span className="font-medium">설명</span>
+            <span className="font-medium">{t("description")}</span>
             <Textarea {...register("description")} disabled={isExporting} />
             {errors.description && (
               <span className="text-destructive text-xs">{errors.description.message}</span>
@@ -111,14 +109,14 @@ export function ExportTemplateDialog({ workspace }: { workspace: Workspace }) {
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-1.5 text-sm">
-              <span className="font-medium">작성자</span>
+              <span className="font-medium">{t("author")}</span>
               <Input {...register("author")} disabled={isExporting} />
               {errors.author && (
                 <span className="text-destructive text-xs">{errors.author.message}</span>
               )}
             </label>
             <label className="block space-y-1.5 text-sm">
-              <span className="font-medium">카테고리</span>
+              <span className="font-medium">{t("category")}</span>
               <Input {...register("category")} disabled={isExporting} />
               {errors.category && (
                 <span className="text-destructive text-xs">{errors.category.message}</span>
@@ -131,10 +129,10 @@ export function ExportTemplateDialog({ workspace }: { workspace: Workspace }) {
               onClick={() => handleOpenChange(false)}
               disabled={isExporting}
             >
-              취소
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isExporting}>
-              {isExporting ? "저장 중…" : "저장 위치 선택"}
+              {isExporting ? t("saving") : t("chooseSaveLocation")}
             </Button>
           </DialogFooter>
         </form>

@@ -46,7 +46,9 @@ export function DeleteWorkspaceDialog({ workspace }: { workspace: Workspace }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("deleteWorkspaceQuestion")}</DialogTitle>
-          <DialogDescription>{t("deleteWorkspaceDescription", { name: workspace.name })}</DialogDescription>
+          <DialogDescription>
+            {t("deleteWorkspaceDescription", { name: workspace.name })}
+          </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="secondary" onClick={() => setOpen(false)} disabled={isLoading}>

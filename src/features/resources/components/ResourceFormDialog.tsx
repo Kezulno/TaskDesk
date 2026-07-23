@@ -196,9 +196,7 @@ export function ResourceFormDialog({ workspaceId, resource, trigger }: ResourceF
             <div className="flex gap-2">
               <Input
                 placeholder={
-                  resourceType === "website"
-                    ? "https://example.com"
-                    : t("pathPlaceholder")
+                  resourceType === "website" ? "https://example.com" : t("pathPlaceholder")
                 }
                 disabled={isLoading}
                 {...register("target")}

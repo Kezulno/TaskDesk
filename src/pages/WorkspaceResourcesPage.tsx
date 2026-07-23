@@ -77,9 +77,7 @@ export function WorkspaceResourcesPage() {
     return (
       <div className="p-8">
         <div className="border-destructive/40 bg-destructive/10 rounded-lg border p-6 text-center">
-          <p className="text-destructive text-sm">
-            {workspaceError ?? t("workspaceNotFound")}
-          </p>
+          <p className="text-destructive text-sm">{workspaceError ?? t("workspaceNotFound")}</p>
           {workspaceId && (
             <Button
               className="mt-4"
@@ -97,8 +95,8 @@ export function WorkspaceResourcesPage() {
 
   return (
     <div>
-      <header className="border-border flex items-start justify-between gap-6 border-b px-8 py-6">
-        <div className="flex min-w-0 items-start gap-4">
+      <header className="border-border flex flex-col gap-5 border-b px-5 py-5 xl:px-8 xl:py-6 2xl:flex-row 2xl:items-start 2xl:justify-between 2xl:gap-6">
+        <div className="flex min-w-0 items-start gap-3 sm:gap-4">
           <span
             className="flex size-12 shrink-0 items-center justify-center rounded-lg text-xl"
             style={{ backgroundColor: workspace.color ?? undefined }}
@@ -107,12 +105,12 @@ export function WorkspaceResourcesPage() {
           </span>
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-semibold tracking-tight">{workspace.name}</h1>
-            <p className="text-muted-foreground mt-2 text-sm whitespace-pre-wrap">
+            <p className="text-muted-foreground mt-2 max-w-3xl text-sm break-words whitespace-pre-wrap">
               {workspace.description || t("noDescription")}
             </p>
           </div>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 2xl:w-auto 2xl:shrink-0 2xl:justify-end">
           <Button
             variant="secondary"
             onClick={() => void toggleFavorite()}
@@ -132,13 +130,15 @@ export function WorkspaceResourcesPage() {
         </div>
       </header>
 
-      <section className="p-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
+      <section className="p-5 xl:p-8">
+        <div className="mb-6 flex flex-col items-start gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0">
             <h2 className="text-lg font-semibold">{t("resources")}</h2>
-            <p className="text-muted-foreground mt-1 text-sm">{t("resourcesDescription")}</p>
+            <p className="text-muted-foreground mt-1 max-w-3xl text-sm break-words">
+              {t("resourcesDescription")}
+            </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-full flex-wrap gap-2 xl:w-auto xl:shrink-0 xl:justify-end">
             <ResourceHealthDialog workspaceId={workspace.id} resources={resources} />
             <AddResourceMenu workspaceId={workspace.id} resources={resources} />
           </div>
@@ -191,7 +191,7 @@ export function WorkspaceResourcesPage() {
                       {sectionResources.length}
                     </span>
                   </h3>
-                  <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="grid gap-4 xl:grid-cols-2">
                     {sectionResources.map((resource, index) => (
                       <ResourceCard
                         key={resource.id}

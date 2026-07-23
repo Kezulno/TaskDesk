@@ -12,9 +12,9 @@ export function AppLayout() {
   }, [fetchWorkspaces]);
 
   return (
-    <div className="bg-background text-foreground flex min-h-screen">
+    <div className="bg-background text-foreground flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="min-w-0 flex-1 overflow-auto">
+      <main className="h-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <Outlet />
       </main>
     </div>

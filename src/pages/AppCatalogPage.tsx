@@ -175,10 +175,7 @@ export function AppCatalogPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t("catalog")}
-        description={t("catalogDescription")}
-      />
+      <PageHeader title={t("catalog")} description={t("catalogDescription")} />
       <section className="space-y-6 p-8">
         <div className="border-border bg-card grid gap-4 rounded-xl border p-5 lg:grid-cols-[1fr_18rem_auto]">
           <label className="space-y-1.5 text-sm font-medium">

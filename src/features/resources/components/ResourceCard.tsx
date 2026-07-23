@@ -113,8 +113,8 @@ export function ResourceCard({ resource, workspaceId, canMoveUp, canMoveDown }: 
         </div>
       </div>
 
-      <div className="border-border mt-4 flex items-center justify-between border-t pt-3">
-        <div className="flex gap-1">
+      <div className="border-border mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+        <div className="flex flex-wrap gap-1">
           <Button
             className="h-8 px-3"
             disabled={!canLaunch}

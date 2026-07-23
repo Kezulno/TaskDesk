@@ -104,9 +104,11 @@ pub(crate) fn read_close_to_tray(connection: &Connection) -> Result<bool, Comman
 pub fn get_language(database: State<'_, Database>) -> Result<String, CommandError> {
     let connection = database.0.lock().map_err(|_| CommandError::lock())?;
     let value = connection
-        .query_row("SELECT value FROM settings WHERE key = 'language'", [], |row| {
-            row.get::<_, String>(0)
-        })
+        .query_row(
+            "SELECT value FROM settings WHERE key = 'language'",
+            [],
+            |row| row.get::<_, String>(0),
+        )
         .optional()?;
     Ok(match value.as_deref() {
         Some("en") => "en".to_owned(),

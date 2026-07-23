@@ -18,6 +18,7 @@ import { useResourceStore } from "@/features/resources/resourceStore";
 import { errorMessage } from "@/lib/errors";
 import type { DetectedApplication } from "@/types/detectedApplication";
 import type { Resource } from "@/types/resource";
+import { useI18n } from "@/features/i18n/i18n";
 
 export function DefaultApplicationDialog({
   workspaceId,
@@ -28,6 +29,7 @@ export function DefaultApplicationDialog({
   resources: Resource[];
   trigger: ReactNode;
 }) {
+  const { t } = useI18n();
   const [openDialog, setOpenDialog] = useState(false);
   const [application, setApplication] = useState<DetectedApplication | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -94,15 +96,13 @@ export function DefaultApplicationDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>파일의 기본 앱 추가</DialogTitle>
-          <DialogDescription>
-            일반 파일은 Windows 기본 프로그램을 찾고, EXE는 선택한 앱 자체의 호환성을 검사합니다.
-          </DialogDescription>
+          <DialogTitle>{t("defaultApp")}</DialogTitle>
+          <DialogDescription>{t("defaultAppDescription")}</DialogDescription>
         </DialogHeader>
 
         <Button variant="secondary" onClick={() => void chooseFile()} disabled={isLoading}>
           <FileSearch className="size-4" />
-          {isLoading ? "확인 중…" : "파일 선택"}
+          {isLoading ? t("checking") : t("selectFile")}
         </Button>
 
         {error && (
@@ -131,7 +131,7 @@ export function DefaultApplicationDialog({
                   )}
                   {application.compatibility.architecture ?? application.compatibility.message}
                 </p>
-                {duplicate && <p className="mt-2 text-xs text-amber-400">이미 등록된 앱입니다.</p>}
+                {duplicate && <p className="mt-2 text-xs text-amber-400">{t("duplicateApp")}</p>}
               </div>
             </div>
           </div>
@@ -139,13 +139,13 @@ export function DefaultApplicationDialog({
 
         <DialogFooter>
           <Button variant="secondary" onClick={() => handleOpenChange(false)} disabled={isLoading}>
-            취소
+            {t("cancel")}
           </Button>
           <Button
             onClick={() => void addApplication()}
             disabled={!application?.valid || duplicate || isLoading}
           >
-            앱 추가
+            {t("addApp")}
           </Button>
         </DialogFooter>
       </DialogContent>
