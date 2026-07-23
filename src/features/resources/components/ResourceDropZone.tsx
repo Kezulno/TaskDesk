@@ -131,14 +131,8 @@ export function ResourceDropZone({
       >
         <div>
           <FileUp className={cn("mx-auto size-6", isOver && "animate-bounce")} />
-          <p className="mt-2 text-sm font-medium">
-            {isOver
-              ? t("dropActive")
-              : t("dropIdle")}
-          </p>
-          <p className="mt-1 text-xs opacity-75">
-            {t("dropMultiple")}
-          </p>
+          <p className="mt-2 text-sm font-medium">{isOver ? t("dropActive") : t("dropIdle")}</p>
+          <p className="mt-1 text-xs opacity-75">{t("dropMultiple")}</p>
         </div>
       </div>
 

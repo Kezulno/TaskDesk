@@ -46,7 +46,9 @@ export function DeleteResourceDialog({ resource }: { resource: Resource }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("deleteResourceQuestion")}</DialogTitle>
-          <DialogDescription>{t("deleteResourceDescription", { name: resource.name })}</DialogDescription>
+          <DialogDescription>
+            {t("deleteResourceDescription", { name: resource.name })}
+          </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="secondary" onClick={() => setOpen(false)} disabled={isLoading}>

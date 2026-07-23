@@ -32,10 +32,10 @@ export function HomePage() {
   return (
     <div>
       <PageHeader title={t("workspaces")} description={t("manageWorkspaces")} />
-      <section className="p-8">
-        <div className="mb-6 flex items-center justify-between">
+      <section className="p-5 xl:p-8">
+        <div className="mb-6 flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="text-lg font-semibold">{t("allWorkspaces")}</h2>
-          <div className="flex gap-2">
+          <div className="flex w-full flex-wrap gap-2 lg:w-auto lg:shrink-0 lg:justify-end">
             <ImportTemplateDialog />
             <CreateWorkspaceDialog />
           </div>
@@ -66,7 +66,7 @@ export function HomePage() {
         )}
 
         {workspaces.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
             {workspaces.map((workspace) => (
               <article
                 key={workspace.id}

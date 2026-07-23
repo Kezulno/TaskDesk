@@ -22,6 +22,7 @@ import {
 } from "@/features/templates/templateSchema";
 import { useWorkspaceStore } from "@/features/workspaces/workspaceStore";
 import { errorMessage } from "@/lib/errors";
+import { useI18n } from "@/features/i18n/i18n";
 
 function validationMessage(error: unknown): string {
   if (error instanceof ZodError) {
@@ -34,6 +35,7 @@ function validationMessage(error: unknown): string {
 }
 
 export function ImportTemplateDialog() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const fetchWorkspaces = useWorkspaceStore((state) => state.fetchWorkspaces);
   const [openDialog, setOpenDialog] = useState(false);
@@ -101,28 +103,26 @@ export function ImportTemplateDialog() {
       <DialogTrigger asChild>
         <Button variant="secondary">
           <Upload className="size-4" aria-hidden="true" />
-          템플릿 가져오기
+          {t("importTemplate")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>워크스페이스 템플릿 가져오기</DialogTitle>
-          <DialogDescription>
-            최대 1MB의 schemaVersion 1 JSON 파일을 검증한 뒤 새 작업 공간으로 만듭니다.
-          </DialogDescription>
+          <DialogTitle>{t("importWorkspaceTemplate")}</DialogTitle>
+          <DialogDescription>{t("importTemplateDescription")}</DialogDescription>
         </DialogHeader>
 
         {!preview && (
           <div className="border-border rounded-lg border border-dashed p-8 text-center">
             <FileJson className="text-muted-foreground mx-auto size-10" aria-hidden="true" />
-            <p className="mt-3 text-sm">가져올 TaskDeck JSON 템플릿을 선택하세요.</p>
+            <p className="mt-3 text-sm">{t("selectTemplatePrompt")}</p>
             <Button
               className="mt-4"
               onClick={() => void selectAndValidate()}
               disabled={isValidating}
             >
               <FolderSearch className="size-4" aria-hidden="true" />
-              {isValidating ? "검증 중…" : "JSON 파일 선택"}
+              {isValidating ? t("validating") : t("selectJson")}
             </Button>
           </div>
         )}
@@ -140,7 +140,7 @@ export function ImportTemplateDialog() {
                 <div>
                   <h3 className="font-semibold">{preview.template.name}</h3>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    {preview.template.description || "템플릿 설명 없음"}
+                    {preview.template.description || t("noTemplateDescription")}
                   </p>
                 </div>
                 <span className="bg-secondary rounded px-2 py-1 text-xs">
@@ -148,22 +148,28 @@ export function ImportTemplateDialog() {
                 </span>
               </div>
               <dl className="text-muted-foreground mt-3 grid gap-1 text-xs sm:grid-cols-2">
-                <div>작성자: {preview.template.author}</div>
-                <div>새 작업 공간: {preview.template.workspace.name}</div>
+                <div>
+                  {t("author")}: {preview.template.author}
+                </div>
+                <div>
+                  {t("newWorkspaceLabel")}: {preview.template.workspace.name}
+                </div>
               </dl>
             </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-sm font-semibold">리소스 {preview.resources.length}개</h3>
+                <h3 className="text-sm font-semibold">
+                  {t("resourceCount", { count: preview.resources.length })}
+                </h3>
                 <Button variant="ghost" className="h-8" onClick={() => void selectAndValidate()}>
-                  다른 파일 선택
+                  {t("chooseDifferentFile")}
                 </Button>
               </div>
               <div className="border-border max-h-72 divide-y overflow-y-auto rounded-lg border">
                 {preview.resources.length === 0 && (
                   <p className="text-muted-foreground p-5 text-center text-sm">
-                    리소스가 없습니다.
+                    {t("noTemplateResources")}
                   </p>
                 )}
                 {preview.resources.map((resource, index) => (
@@ -175,7 +181,8 @@ export function ImportTemplateDialog() {
                       <strong className="min-w-0 truncate text-sm">{resource.name}</strong>
                       {resource.needsPathReview && (
                         <span className="ml-auto flex shrink-0 items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-500">
-                          <AlertTriangle className="size-3" aria-hidden="true" /> 경로 확인 필요
+                          <AlertTriangle className="size-3" aria-hidden="true" />{" "}
+                          {t("pathNeedsReview")}
                         </span>
                       )}
                     </div>
@@ -193,8 +200,7 @@ export function ImportTemplateDialog() {
             {preview.resources.some((resource) => resource.needsPathReview) && (
               <p className="flex gap-2 rounded-md bg-amber-500/10 p-3 text-sm text-amber-500">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                존재하지 않는 로컬 경로도 저장되지만 실행할 수 없습니다. 가져온 뒤 경로를
-                수정하세요.
+                {t("missingPathsNotice")}
               </p>
             )}
           </div>
@@ -206,10 +212,10 @@ export function ImportTemplateDialog() {
             onClick={() => handleOpenChange(false)}
             disabled={isImporting}
           >
-            취소
+            {t("cancel")}
           </Button>
           <Button onClick={() => void importTemplate()} disabled={!preview || isImporting}>
-            {isImporting ? "가져오는 중…" : "새 작업 공간으로 가져오기"}
+            {isImporting ? t("importing") : t("importAsNewWorkspace")}
           </Button>
         </DialogFooter>
       </DialogContent>

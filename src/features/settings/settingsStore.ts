@@ -53,7 +53,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const { closeToTray, autoStart, language } = get();
     set({ isLoading: true, error: null, launchIntervalMs: value });
     try {
-      const [launchIntervalMs, savedCloseToTray, savedLanguage] = await Promise.all([
+      const [launchIntervalMs, savedCloseToTray, , savedLanguage] = await Promise.all([
         settingsApi.setLaunchInterval(value),
         settingsApi.setCloseToTray(closeToTray),
         autoStart ? enable() : disable(),

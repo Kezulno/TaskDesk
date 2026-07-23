@@ -23,6 +23,7 @@ import { useBatchLaunchStore } from "@/features/launcher/batchLaunchStore";
 import { useLaunchStore } from "@/features/launcher/launchStore";
 import { resourceTypeIcons } from "@/features/resources/resourcePresentation";
 import type { Resource } from "@/types/resource";
+import { useI18n } from "@/features/i18n/i18n";
 
 interface BatchLaunchDialogProps {
   workspaceId: string;
@@ -30,6 +31,7 @@ interface BatchLaunchDialogProps {
 }
 
 export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const validations = useLaunchStore((state) => state.validations);
   const isRunning = useBatchLaunchStore((state) => state.isRunning);
@@ -83,7 +85,7 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
           ) : (
             <Rocket className="size-4" />
           )}
-          {isRunning ? "환경 준비 중…" : "작업 환경 열기"}
+          {isRunning ? t("preparingEnvironment") : t("openWorkspace")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
@@ -92,16 +94,16 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Rocket className="size-5 text-indigo-400" />
-                작업 환경을 준비하고 있습니다
+                {t("preparingWorkspace")}
               </DialogTitle>
-              <DialogDescription>등록한 항목을 설정된 순서에 맞춰 열고 있습니다.</DialogDescription>
+              <DialogDescription>{t("openingInOrder")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="border-border bg-secondary/40 flex items-center gap-3 rounded-lg border p-4">
                 <LoaderCircle className="text-primary size-5 shrink-0 animate-spin" />
                 <div className="min-w-0">
-                  <p className="text-muted-foreground text-xs">현재 여는 항목</p>
-                  <p className="truncate font-medium">{currentResourceName ?? "준비 중…"}</p>
+                  <p className="text-muted-foreground text-xs">{t("currentItem")}</p>
+                  <p className="truncate font-medium">{currentResourceName ?? t("preparing")}</p>
                 </div>
               </div>
               <div>
@@ -123,13 +125,13 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
         ) : result ? (
           <>
             <DialogHeader>
-              <DialogTitle>작업 환경 준비 완료</DialogTitle>
-              <DialogDescription>앱과 경로를 연 결과입니다.</DialogDescription>
+              <DialogTitle>{t("workspaceReady")}</DialogTitle>
+              <DialogDescription>{t("launchResults")}</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-3 gap-3">
-              <Summary label="열림" value={result.succeeded} tone="success" />
-              <Summary label="실패" value={result.failed} tone="error" />
-              <Summary label="제외" value={result.skipped} tone="warning" />
+              <Summary label={t("opened")} value={result.succeeded} tone="success" />
+              <Summary label={t("failed")} value={result.failed} tone="error" />
+              <Summary label={t("skipped")} value={result.skipped} tone="warning" />
             </div>
             <div className="mt-2 space-y-2">
               {result.items.map((item) => (
@@ -144,7 +146,7 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
                     )}
                     <span className="min-w-0 flex-1 truncate">{item.resourceName}</span>
                     <span className="text-muted-foreground text-xs">
-                      {item.skipped ? "제외" : item.success ? "열림" : "실패"}
+                      {item.skipped ? t("skipped") : item.success ? t("opened") : t("failed")}
                     </span>
                     <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
                   </summary>
@@ -155,7 +157,7 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
               ))}
             </div>
             <DialogFooter>
-              <Button onClick={() => setOpen(false)}>닫기</Button>
+              <Button onClick={() => setOpen(false)}>{t("close")}</Button>
             </DialogFooter>
           </>
         ) : (
@@ -163,16 +165,13 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Rocket className="size-5 text-indigo-400" />
-                작업 환경을 열까요?
+                {t("openWorkspaceQuestion")}
               </DialogTitle>
-              <DialogDescription>
-                활성화된 앱, 웹사이트, 폴더와 파일을 아래 순서에 맞춰 엽니다. 사용할 수 없는 항목은
-                제외됩니다.
-              </DialogDescription>
+              <DialogDescription>{t("openWorkspaceDescription")}</DialogDescription>
             </DialogHeader>
             {activeResources.length === 0 ? (
               <div className="border-border text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-                작업 환경에 포함된 활성 항목이 없습니다.
+                {t("noActiveItems")}
               </div>
             ) : (
               <ol className="max-h-80 space-y-2 overflow-y-auto">
@@ -190,14 +189,14 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
                       <TypeIcon className="size-4 shrink-0" />
                       <span className="min-w-0 flex-1 truncate text-sm">{resource.name}</span>
                       {!validation ? (
-                        <span className="text-muted-foreground text-xs">검사 중…</span>
+                        <span className="text-muted-foreground text-xs">{t("inspecting")}</span>
                       ) : !validation.valid ? (
                         <span
                           className="inline-flex items-center gap-1 text-xs text-amber-400"
                           title={validation.message ?? undefined}
                         >
                           <AlertTriangle className="size-3.5" />
-                          제외
+                          {t("skipped")}
                         </span>
                       ) : (
                         <CheckCircle2 className="size-4 text-emerald-400" />
@@ -210,14 +209,14 @@ export function BatchLaunchDialog({ workspaceId, resources }: BatchLaunchDialogP
             {error && <p className="text-destructive text-sm">{error}</p>}
             <DialogFooter>
               <Button variant="secondary" onClick={() => setOpen(false)}>
-                취소
+                {t("cancel")}
               </Button>
               <Button
                 onClick={() => void handleStart()}
                 disabled={activeResources.length === 0 || !allValidated}
               >
                 <Rocket className="size-4" />
-                환경 열기
+                {t("openEnvironment")}
               </Button>
             </DialogFooter>
           </>

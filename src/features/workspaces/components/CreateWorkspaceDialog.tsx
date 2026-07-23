@@ -65,9 +65,13 @@ export function CreateWorkspaceDialog({ compact = false }: CreateWorkspaceDialog
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className={compact ? "mt-3 w-full" : undefined}>
+        <Button
+          className={compact ? "mt-3 w-full px-2 lg:px-4" : undefined}
+          aria-label={compact ? t("newWorkspace") : undefined}
+          title={compact ? t("newWorkspace") : undefined}
+        >
           <Plus className="size-4" aria-hidden="true" />
-          {t("newWorkspace")}
+          <span className={compact ? "hidden lg:inline" : undefined}>{t("newWorkspace")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

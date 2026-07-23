@@ -1,130 +1,110 @@
 # TaskDeck
 
-TaskDeck은 반복 작업에 필요한 애플리케이션, 웹사이트, 폴더와 파일을 워크스페이스로 묶어 관리하고 순서대로 여는 Windows 우선 데스크톱 앱입니다. 로컬 우선으로 동작하며 별도 계정이나 백엔드 서버가 필요하지 않습니다.
+[한국어](README.md) | [English](README.en.md)
 
-> 현재 버전: `0.1.0` MVP. 중요한 작업 환경에 사용하기 전에 등록된 경로와 실행 순서를 직접 확인하세요.
+> 자주 쓰는 앱과 사이트를 작업별로 모아 한 번에 여세요.
+
+TaskDeck은 앱, 웹사이트, 폴더, 파일을 하나의 **작업 공간**으로 정리해 주는 Windows용 데스크톱 앱입니다. 예를 들어 `개발`, `포렌식 분석`, `영상 편집` 작업 공간을 만들고 필요한 도구를 원하는 순서대로 열 수 있습니다.
+
+계정 가입이나 별도 서버가 필요하지 않으며, 모든 작업 공간 정보는 내 컴퓨터에 저장됩니다.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-6366f1.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
+![Version](https://img.shields.io/badge/version-0.1.0-22c55e)
+![Language](https://img.shields.io/badge/UI-한국어%20%7C%20English-f59e0b)
+
+## 바로 설치하기
+
+Windows 10/11 64비트에서 사용할 수 있습니다.
+
+### [TaskDeck 0.1.0 EXE 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64-setup.exe)
+
+대부분의 사용자는 위 EXE 파일을 받으면 됩니다.
+
+- [MSI 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64_en-US.msi) — 회사나 기관의 관리 배포용
+- [모든 버전과 업데이트 내용 보기](https://github.com/Kezulno/TaskDesk/releases)
+
+> 다운로드 링크는 GitHub에 `v0.1.0` Release와 설치 파일이 공개된 후 작동합니다. 현재 설치 파일은 코드 서명 전 개발 버전이므로 Windows SmartScreen 안내가 나타날 수 있습니다.
+
+## 이렇게 시작하세요
+
+1. TaskDeck을 설치하고 실행합니다.
+2. **새 작업 공간**을 눌러 작업 이름과 색상, 아이콘을 정합니다.
+3. **리소스 추가**에서 앱, 웹사이트, 폴더 또는 파일을 등록합니다.
+4. 각 항목의 위·아래 버튼으로 열리는 순서를 정합니다.
+5. **작업 환경 열기**를 누르면 활성화된 항목이 순서대로 열립니다.
+
+개별 항목의 **실행** 버튼을 누르거나 카드를 두 번 클릭해 하나만 열 수도 있습니다.
+
+## 이런 작업에 유용합니다
+
+| 작업 공간 예시 | 함께 등록할 항목                                         |
+| -------------- | -------------------------------------------------------- |
+| 개발           | VS Code, Docker Desktop, GitHub, API 문서, 프로젝트 폴더 |
+| 보안·포렌식    | Autopsy, Wireshark, CyberChef, 분석 도구와 증거 폴더     |
+| AI 작업        | ChatGPT, Claude, Copilot, 로컬 AI 도구와 프롬프트 문서   |
+| 영상 편집      | 편집 프로그램, 음원·소스 폴더, 참고 사이트               |
+| 공부·메모      | 노트 앱, 강의 사이트, 자료 폴더와 문서                   |
 
 ## 주요 기능
 
-- SQLite에 영구 저장되는 워크스페이스 및 리소스 CRUD
-- 애플리케이션, 웹사이트, 폴더, 파일의 개별 실행
-- 활성 리소스를 저장된 순서에 맞춰 한 번에 여는 작업 환경 준비
-- 실행 간격 설정, 경로 검증, 실패 후 계속 진행되는 결과 보고
-- Windows 시작 메뉴, Program Files, 사용자별 Programs 폴더와 설치 정보 레지스트리 기반 앱 검색
-- 설치 앱 아이콘 지연 로딩과 실행 파일 중복·보조 도구 필터링
-- Windows 탐색기에서 앱, 파일과 폴더를 여러 개 드래그 앤 드롭해 추가
-- 개발, AI 개발 도구, AI, 브라우저, 문서·업무, 소통, 파일·클라우드, 유틸리티, 리버싱, 포렌식, 보안, 영상, 메모, 데이터 분야별 앱·웹 카탈로그
-- 추천 앱 설치 상태 확인, 공식 사이트 안내 및 작업 공간 추가
-- 분야별 웹 도구·문서·학습 사이트와 외부 업로드 개인정보 경고
-- 워크스페이스 색상 팔레트, 사용자 지정 색상과 Lucide 아이콘 선택
-- 설치 앱 이름·실행 경로·아이콘 자동 입력 및 32/64비트 Windows 호환성 검사
-- 선택한 파일 확장자의 Windows 기본 연결 앱 검색 및 등록
-- 워크스페이스 템플릿 JSON 가져오기 및 내보내기
-- 워크스페이스 즐겨찾기 고정 및 리소스를 포함한 복제
-- 전체 리소스 경로 점검과 문제 항목 수정
-- 시스템 트레이 최소화 및 Windows 로그인 시 자동 시작
-- 기본 다크 모드, 빈 상태·로딩·오류·삭제 확인 UI
+### 작업 공간 관리
 
-## 스크린샷
+- 이름, 설명, 색상, 아이콘 설정
+- 즐겨찾기 고정과 작업 공간 복제
+- 앱·사이트·폴더·파일을 작업 공간별로 관리
+- JSON 템플릿으로 작업 구성을 백업하거나 공유
 
-릴리스 스크린샷은 아직 저장소에 포함되지 않았습니다. 첫 공개 릴리스 전에 다음 화면을 `docs/screenshots`에 추가할 예정입니다.
+### 앱을 편하게 추가
 
-- 대시보드 및 워크스페이스 카드
-- 리소스 관리와 경로 경고
-- 작업 환경 준비 진행 및 결과
-- 템플릿 가져오기 미리보기
+- Windows 시작 메뉴와 Program Files에서 설치된 앱 검색
+- `.exe` 파일을 직접 선택해 추가
+- 탐색기에서 앱, 파일, 폴더를 끌어다 놓아 추가
+- 개발, AI, 보안, 영상, 메모 등 분야별 추천 앱과 사이트 제공
+- 실행 파일에서 이름과 아이콘을 가능한 범위에서 자동으로 가져오기
 
-## 기술 스택
+### 안전한 실행
 
-- Tauri v2, Rust
-- React, TypeScript strict, Vite
-- Tailwind CSS, Radix UI 기반 컴포넌트, Lucide React
-- Zustand, React Router, React Hook Form, Zod
-- SQLite (`rusqlite`, bundled SQLite)
+- 실행 전에 앱·파일·폴더가 실제로 있는지 확인
+- 웹사이트는 `http://`와 `https://` 주소만 허용
+- 문제가 있는 항목은 경고로 표시하고 실행하지 않음
+- 여러 항목 중 하나가 실패해도 다음 항목은 계속 실행
+- 명령 프롬프트나 PowerShell 문자열을 만들어 실행하지 않음
 
-## 지원 운영체제
+### 내 환경에 맞게 설정
 
-TaskDeck UI와 데이터 관리는 Tauri가 지원하는 데스크톱 환경에서 빌드할 수 있지만, 리소스 실행과 설치 앱 검색은 Windows 전용으로 구현되어 있습니다. MVP의 공식 지원 대상은 Windows 10 및 Windows 11 x64입니다.
+- 한국어와 English 전환
+- 리소스가 열리는 간격 조절
+- 창을 닫을 때 시스템 트레이로 최소화
+- Windows 로그인 시 TaskDeck 자동 시작
+- 기본 다크 모드
 
-## 사전 요구 사항
+## 앱이 검색되지 않을 때
 
-- Node.js 20 이상과 npm
-- Rust stable (`rustup`, `cargo`, `rustc`)
-- Microsoft C++ Build Tools의 Desktop development with C++ 워크로드
-- Microsoft Edge WebView2 Runtime
+일부 앱은 Windows의 설치 방식 때문에 자동 검색되지 않을 수 있습니다.
 
-자세한 준비 사항은 [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)를 확인하세요.
+- Microsoft Store 보호 경로에 설치된 앱
+- 설치 정보가 없는 포터블 앱
+- 네트워크 드라이브에 있는 앱
+- 전용 런처를 통해 실행되는 일부 앱
 
-## 설치
+이 경우 **리소스 추가 → 직접 추가**에서 실행 파일을 선택하거나, 탐색기에서 `.exe` 파일을 TaskDeck 창으로 끌어다 놓으세요. 웹사이트 주소도 직접 입력할 수 있습니다.
 
-```powershell
-git clone <repository-url>
-cd TaskDeck
-npm install
-```
+## 언어 변경
 
-잠금 파일과 정확히 같은 의존성을 설치하려면 `npm ci`를 사용할 수 있습니다.
+왼쪽 메뉴의 **설정 → 언어**에서 `한국어` 또는 `English`를 선택할 수 있습니다. 선택한 언어는 앱을 다시 실행해도 유지됩니다.
 
-## 개발 실행
+## 템플릿 가져오기와 공유
 
-```powershell
-npm run tauri dev
-```
+대시보드의 **템플릿 가져오기**로 다른 사람이 만든 작업 구성을 불러올 수 있습니다. 워크스페이스 화면에서는 현재 구성을 JSON 파일로 내보낼 수 있습니다.
 
-프론트엔드만 확인하려면 `npm run dev`를 사용할 수 있지만, Tauri Command가 필요한 데이터베이스·Dialog·실행 기능은 동작하지 않습니다.
+- 템플릿은 앱이나 파일 자체가 아니라 이름과 경로 같은 구성 정보만 저장합니다.
+- 가져온 리소스는 자동으로 실행되지 않습니다.
+- 다른 컴퓨터에 존재하지 않는 경로도 저장되며 `경로 확인 필요`로 표시됩니다.
+- 로컬 경로에 사용자 이름 등 개인정보가 포함될 수 있으므로 공유 전에 내용을 확인하세요.
 
-## 검사 및 빌드
-
-```powershell
-npm run typecheck
-npm run lint
-npm run format:check
-cargo test --manifest-path src-tauri/Cargo.toml
-cargo check --manifest-path src-tauri/Cargo.toml
-npm run tauri build
-```
-
-Windows에서 `npm run tauri build`를 실행하면 기본 설정에 따라 `src-tauri/target/release/bundle` 아래에 MSI/NSIS 설치 파일이 생성됩니다. 코드 서명 인증서는 프로젝트에 포함되어 있지 않으므로 공개 배포 시 별도 서명 절차가 필요합니다.
-
-일반 사용자에게는 관리자 권한 없이 현재 사용자 영역에 설치되는 NSIS `TaskDeck_*_x64-setup.exe` 파일을 배포하는 것을 권장합니다. MSI가 필요하지 않은 경우 다음 명령으로 NSIS 설치 파일만 생성할 수 있습니다.
-
-```powershell
-npm run tauri build -- --bundles nsis
-```
-
-## 데이터 저장 및 migration
-
-데이터베이스는 Tauri가 제공하는 운영체제별 앱 데이터 디렉터리의 `taskdeck.db`에 생성됩니다. 앱 시작 시 Rust가 테이블과 인덱스를 idempotent하게 적용하고 `PRAGMA foreign_keys = ON`을 확인합니다. 워크스페이스 삭제 시 연결된 리소스는 `ON DELETE CASCADE`로 삭제됩니다.
-
-프론트엔드는 SQL을 직접 실행하지 않으며 구조화된 Tauri Command만 호출합니다.
-
-## 앱 카탈로그 확장
-
-카탈로그는 `src/features/catalog/catalogData.ts`의 카테고리와 앱 데이터로 구성됩니다. 새 분야는 `catalogCategories`에 추가하고 추천 도구는 `catalogApplications`에 공식 `http/https` 주소와 Windows 실행 파일 이름 힌트를 등록합니다. 설치 파일은 TaskDeck이 자동 다운로드하거나 실행하지 않습니다.
-
-## 프로젝트 구조
-
-```text
-src/
-  app/                    라우팅과 애플리케이션 진입점
-  components/             공용 UI와 레이아웃
-  features/
-    catalog/              분야별 앱 카탈로그 데이터와 공식 사이트 연결
-    launcher/             개별 실행과 작업 환경 준비 상태 및 UI
-    resources/            리소스 CRUD와 설치 앱 검색
-    settings/             실행 간격 설정
-    templates/            JSON 가져오기·내보내기
-    workspaces/           워크스페이스 CRUD
-  pages/                  라우트 페이지
-  types/                  공유 TypeScript 타입
-src-tauri/
-  capabilities/           최소 Tauri 권한
-  src/                    SQLite와 Rust Command
-```
-
-## 템플릿 JSON
-
-템플릿은 실제 애플리케이션이나 사용자 파일을 포함하지 않고 구성 정보만 저장합니다.
+<details>
+<summary>템플릿 JSON 예시 보기</summary>
 
 ```json
 {
@@ -135,8 +115,8 @@ src-tauri/
   "category": "development",
   "exportedAt": "2026-07-13T00:00:00.000Z",
   "workspace": {
-    "name": "개발 작업",
-    "description": "개발 환경",
+    "name": "Development",
+    "description": "Local development workspace",
     "icon": "code",
     "color": "#6366f1"
   },
@@ -154,33 +134,126 @@ src-tauri/
 }
 ```
 
-가져오기는 schemaVersion 1, 최대 1MB, 최대 200개 리소스만 허용합니다. 알 수 없는 타입과 HTTP/HTTPS가 아닌 웹사이트 URL은 거부합니다. 동일한 워크스페이스 이름은 `(2)`, `(3)` 접미사로 구분됩니다.
+</details>
 
-## 보안 주의사항
+## 자주 묻는 질문
 
-- 프론트엔드에 범용 shell API를 노출하지 않습니다.
-- 애플리케이션은 `.exe` 존재 여부를 확인한 뒤 인자 없이 직접 시작합니다.
-- 애플리케이션 등록 시 Windows `GetBinaryTypeW`로 실행 형식과 호환성을 확인합니다.
-- 파일 기본 앱 검색은 Windows `AssocQueryStringW`를 사용하며 shell이나 레지스트리 전체 검색을 실행하지 않습니다.
-- 웹사이트는 HTTP와 HTTPS만 허용하고 폴더·파일은 존재 여부를 먼저 확인합니다.
-- 실행 대상은 `cmd.exe`나 PowerShell 명령 문자열에 결합하지 않습니다.
-- 가져온 템플릿은 어떤 리소스도 자동 실행하지 않습니다.
-- 템플릿에는 사용자 이름 등이 포함된 로컬 경로가 저장될 수 있으므로 공유 전에 확인해야 합니다.
-- 공개 배포 파일은 신뢰할 수 있는 코드 서명 인증서로 서명하는 것을 권장합니다.
+### 앱이나 파일이 자동으로 실행되나요?
 
-취약점 신고는 [SECURITY.md](SECURITY.md)를 따라 주세요.
+아닙니다. 사용자가 **실행** 또는 **작업 환경 열기**를 눌렀을 때만 실행됩니다. 템플릿과 추천 카탈로그를 열어 보는 것만으로 앱이 설치되거나 실행되지는 않습니다.
 
-## 로드맵
+### 내 작업 정보가 서버로 전송되나요?
 
-- 서명된 Windows 설치 파일과 자동 업데이트
-- Registry 및 Microsoft Store 앱 탐지 개선
-- 드래그 앤 드롭 리소스 정렬
-- 템플릿 경로 매핑과 공유용 경로 정리 도구
-- 접근성 및 다국어 지원 강화
+TaskDeck은 별도 백엔드 서버나 로그인을 사용하지 않습니다. 작업 공간, 리소스, 설정은 운영체제의 TaskDeck 앱 데이터 폴더에 있는 로컬 SQLite 데이터베이스에 저장됩니다.
 
-## 기여
+### 설치된 앱을 전부 찾을 수 있나요?
 
-버그 수정과 문서 개선을 환영합니다. 작업을 시작하기 전에 [CONTRIBUTING.md](CONTRIBUTING.md)와 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)를 읽어 주세요.
+Windows 앱마다 설치 방식이 달라 100% 탐지는 어렵습니다. 찾지 못한 앱은 실행 파일을 직접 선택하거나 드래그 앤 드롭으로 추가할 수 있습니다.
+
+### 삭제한 작업 공간의 리소스는 어떻게 되나요?
+
+작업 공간을 삭제하면 연결된 TaskDeck 리소스 정보도 함께 삭제됩니다. 실제 앱이나 사용자 파일은 삭제하지 않습니다.
+
+## 개발자를 위한 안내
+
+### 기술 스택
+
+- Tauri v2, Rust
+- React, TypeScript strict, Vite
+- Tailwind CSS, Radix UI, Lucide React
+- Zustand, React Router, React Hook Form, Zod
+- SQLite (`rusqlite`, bundled SQLite)
+
+### 개발 환경 준비
+
+- Node.js 20 이상과 npm
+- Rust stable (`rustup`, `cargo`, `rustc`)
+- Microsoft C++ Build Tools의 **Desktop development with C++** 워크로드
+- Microsoft Edge WebView2 Runtime
+
+자세한 준비 사항은 [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)를 확인하세요.
+
+```powershell
+git clone https://github.com/Kezulno/TaskDesk.git
+cd TaskDesk
+npm install
+npm run tauri dev
+```
+
+`npm run dev`는 브라우저 화면만 실행합니다. 데이터베이스, 파일 선택, 앱 검색과 실행을 확인하려면 반드시 `npm run tauri dev`를 사용하세요.
+
+### 검사와 설치 파일 빌드
+
+```powershell
+npm run format:check
+npm run typecheck
+npm run lint
+cargo test --manifest-path src-tauri/Cargo.toml
+cargo check --manifest-path src-tauri/Cargo.toml
+npm run tauri build
+```
+
+생성된 설치 파일은 다음 폴더에서 찾을 수 있습니다.
+
+```text
+src-tauri/target/release/bundle/nsis
+src-tauri/target/release/bundle/msi
+```
+
+NSIS 설치 파일만 만들려면 `npm run tauri build -- --bundles nsis`를 실행하세요.
+
+### 프로젝트 구조
+
+```text
+src/
+  app/                    라우팅과 앱 시작점
+  components/             공용 UI와 레이아웃
+  features/
+    catalog/              분야별 앱·사이트 카탈로그
+    i18n/                 한국어·영어 번역
+    launcher/             개별·일괄 실행
+    resources/            리소스 관리, 앱 검색, 경로 검증
+    settings/             실행 간격, 트레이, 자동 시작, 언어
+    templates/            JSON 가져오기·내보내기
+    workspaces/           작업 공간 관리
+  pages/                  화면별 페이지
+src-tauri/
+  capabilities/           Tauri 권한
+  src/                    SQLite, 검증, 검색 및 실행 Command
+```
+
+## 보안과 개인정보
+
+- 프론트엔드에 범용 shell 실행 기능을 제공하지 않습니다.
+- 실행 경로를 `cmd.exe`나 PowerShell 명령 문자열에 결합하지 않습니다.
+- 웹사이트는 HTTP/HTTPS만 허용합니다.
+- JSON 파일을 명령이나 스크립트로 해석하지 않습니다.
+- 설치 파일은 아직 코드 서명되지 않았습니다.
+
+보안 문제를 발견했다면 공개 이슈를 작성하기 전에 [SECURITY.md](SECURITY.md)의 신고 방법을 확인해 주세요.
+
+## 현재 알려진 제한 사항
+
+- 일부 Microsoft Store/UWP 앱과 특수 런처는 자동 탐지나 실행이 제한될 수 있습니다.
+- 앱 이름과 아이콘 품질은 설치 프로그램과 바로가기 정보에 따라 달라집니다.
+- 일부 Windows 및 Rust 상세 오류는 운영체제가 제공한 원문으로 표시될 수 있습니다.
+- 코드 서명과 자동 업데이트는 아직 제공하지 않습니다.
+
+## 앞으로 추가할 기능
+
+- 코드 서명된 설치 파일과 자동 업데이트
+- Microsoft Store 앱 탐지 개선
+- 컴퓨터마다 다른 템플릿 경로를 쉽게 다시 연결하는 기능
+- 드래그 앤 드롭 순서 변경과 실행 프로필
+- 추가 언어와 접근성 개선
+
+## 기여하기
+
+버그 수정, 번역, 문서와 카탈로그 개선을 환영합니다. 시작하기 전에 [CONTRIBUTING.md](CONTRIBUTING.md)와 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)를 읽어 주세요.
+
+## English
+
+TaskDeck is a Windows-first, local-first workspace launcher for organizing applications, websites, folders, and files. Create a workspace, add the tools you need, arrange their order, and open your work environment with one action. No account or backend server is required. You can switch the interface to English under **Settings → Language**.
 
 ## 라이선스
 
