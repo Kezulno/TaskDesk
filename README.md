@@ -26,7 +26,7 @@ Windows 10/11 64비트에서 사용할 수 있습니다.
 
 > 다운로드 링크는 GitHub에 `v0.1.0` Release와 설치 파일이 공개된 후 작동합니다. 현재 설치 파일은 코드 서명 전 개발 버전이므로 Windows SmartScreen 안내가 나타날 수 있습니다.
 
-<img width="1437" height="927" alt="image" src="https://github.com/user-attachments/assets/042e8946-2be5-400b-905a-670af098ac25" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
 
 ## 이렇게 시작하세요
 
@@ -35,6 +35,8 @@ Windows 10/11 64비트에서 사용할 수 있습니다.
 3. **리소스 추가**에서 앱, 웹사이트, 폴더 또는 파일을 등록합니다.
 4. 각 항목의 위·아래 버튼으로 열리는 순서를 정합니다.
 5. **작업 환경 열기**를 누르면 활성화된 항목이 순서대로 열립니다.
+
+
 
 개별 항목의 **실행** 버튼을 누르거나 카드를 두 번 클릭해 하나만 열 수도 있습니다.
 
