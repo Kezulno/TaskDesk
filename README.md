@@ -26,6 +26,8 @@ Windows 10/11 64비트에서 사용할 수 있습니다.
 
 > 다운로드 링크는 GitHub에 `v0.1.0` Release와 설치 파일이 공개된 후 작동합니다. 현재 설치 파일은 코드 서명 전 개발 버전이므로 Windows SmartScreen 안내가 나타날 수 있습니다.
 
+<img width="1437" height="927" alt="image" src="https://github.com/user-attachments/assets/042e8946-2be5-400b-905a-670af098ac25" />
+
 ## 이렇게 시작하세요
 
 1. TaskDeck을 설치하고 실행합니다.
