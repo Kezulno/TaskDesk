@@ -298,16 +298,16 @@ fn scan_registry_applications(applications: &mut Vec<DetectedApplication>) {
             if !compatibility.exists {
                 continue;
             }
-            applications.push(detected_application(
-                display_name.trim().to_owned(),
-                path.to_string_lossy().into_owned(),
-                None,
-                ApplicationSource::Registry,
-                Some(path.to_string_lossy().into_owned()),
-                compatibility.compatible,
+            applications.push(detected_application(DetectedApplicationDetails {
+                name: display_name.trim().to_owned(),
+                executable_path: path.to_string_lossy().into_owned(),
+                shortcut_path: None,
+                source: ApplicationSource::Registry,
+                icon_path: Some(path.to_string_lossy().into_owned()),
+                valid: compatibility.compatible,
                 compatibility,
-                is_installer_executable(&path),
-            ));
+                is_installer: is_installer_executable(&path),
+            }));
         }
     }
 }
@@ -677,16 +677,16 @@ fn application_from_shortcut(path: &Path, source: ApplicationSource) -> Detected
         .map(|icon| icon.path.to_string_lossy().into_owned());
     if requires_shortcut_arguments {
         let compatibility = application_target_compatibility(path);
-        return detected_application(
+        return detected_application(DetectedApplicationDetails {
             name,
-            path.to_string_lossy().into_owned(),
-            Some(path.to_string_lossy().into_owned()),
+            executable_path: path.to_string_lossy().into_owned(),
+            shortcut_path: Some(path.to_string_lossy().into_owned()),
             source,
             icon_path,
-            compatibility.compatible,
+            valid: compatibility.compatible,
             compatibility,
-            false,
-        );
+            is_installer: false,
+        });
     }
     let executable_path = executable
         .as_ref()
@@ -703,16 +703,16 @@ fn application_from_shortcut(path: &Path, source: ApplicationSource) -> Detected
         .as_deref()
         .map(application_compatibility)
         .unwrap_or_else(|| incompatible(false, None, "바로가기 실행 대상을 확인하지 못했습니다."));
-    detected_application(
+    detected_application(DetectedApplicationDetails {
         name,
         executable_path,
-        Some(path.to_string_lossy().into_owned()),
+        shortcut_path: Some(path.to_string_lossy().into_owned()),
         source,
         icon_path,
-        valid && compatibility.compatible,
+        valid: valid && compatibility.compatible,
         compatibility,
-        executable.as_deref().is_some_and(is_installer_executable),
-    )
+        is_installer: executable.as_deref().is_some_and(is_installer_executable),
+    })
 }
 
 #[cfg(target_os = "windows")]
@@ -772,23 +772,35 @@ fn process_start_executable_name(arguments: &str) -> Option<&str> {
                 .extension()
                 .and_then(|extension| extension.to_str())
                 .is_some_and(|extension| extension.eq_ignore_ascii_case("exe"));
-        return is_plain_executable_name.then_some(candidate);
+        let is_blocked_system_launcher = [
+            "cmd.exe",
+            "powershell.exe",
+            "pwsh.exe",
+            "wscript.exe",
+            "cscript.exe",
+            "mshta.exe",
+            "rundll32.exe",
+            "regsvr32.exe",
+        ]
+        .iter()
+        .any(|blocked| candidate.eq_ignore_ascii_case(blocked));
+        return (is_plain_executable_name && !is_blocked_system_launcher).then_some(candidate);
     }
     None
 }
 
 #[cfg(not(target_os = "windows"))]
 fn application_from_shortcut(path: &Path, source: ApplicationSource) -> DetectedApplication {
-    detected_application(
-        display_name(path),
-        String::new(),
-        Some(path.to_string_lossy().into_owned()),
+    detected_application(DetectedApplicationDetails {
+        name: display_name(path),
+        executable_path: String::new(),
+        shortcut_path: Some(path.to_string_lossy().into_owned()),
         source,
-        None,
-        false,
-        incompatible(false, None, "바로가기 검사는 Windows에서만 지원합니다."),
-        false,
-    )
+        icon_path: None,
+        valid: false,
+        compatibility: incompatible(false, None, "바로가기 검사는 Windows에서만 지원합니다."),
+        is_installer: false,
+    })
 }
 
 fn application_from_executable(path: &Path) -> DetectedApplication {
@@ -800,19 +812,19 @@ fn application_from_executable_with_source(
     source: ApplicationSource,
 ) -> DetectedApplication {
     let compatibility = application_compatibility(path);
-    detected_application(
-        executable_display_name(path),
-        path.to_string_lossy().into_owned(),
-        None,
+    detected_application(DetectedApplicationDetails {
+        name: executable_display_name(path),
+        executable_path: path.to_string_lossy().into_owned(),
+        shortcut_path: None,
         source,
-        Some(path.to_string_lossy().into_owned()),
-        compatibility.compatible,
+        icon_path: Some(path.to_string_lossy().into_owned()),
+        valid: compatibility.compatible,
         compatibility,
-        is_installer_executable(path),
-    )
+        is_installer: is_installer_executable(path),
+    })
 }
 
-fn detected_application(
+struct DetectedApplicationDetails {
     name: String,
     executable_path: String,
     shortcut_path: Option<String>,
@@ -821,18 +833,23 @@ fn detected_application(
     valid: bool,
     compatibility: ApplicationCompatibility,
     is_installer: bool,
-) -> DetectedApplication {
-    let identity = shortcut_path.as_deref().unwrap_or(&executable_path);
+}
+
+fn detected_application(details: DetectedApplicationDetails) -> DetectedApplication {
+    let identity = details
+        .shortcut_path
+        .as_deref()
+        .unwrap_or(&details.executable_path);
     DetectedApplication {
         id: Uuid::new_v5(&Uuid::NAMESPACE_URL, identity.as_bytes()).to_string(),
-        name,
-        executable_path,
-        shortcut_path,
-        source,
-        icon_path,
-        valid,
-        compatibility,
-        is_installer,
+        name: details.name,
+        executable_path: details.executable_path,
+        shortcut_path: details.shortcut_path,
+        source: details.source,
+        icon_path: details.icon_path,
+        valid: details.valid,
+        compatibility: details.compatibility,
+        is_installer: details.is_installer,
     }
 }
 
@@ -858,16 +875,16 @@ fn default_application_for_file(path: &Path) -> Result<DetectedApplication, Comm
     let executable = query_associated_executable(&format!(".{extension}"))?;
     let executable_path = PathBuf::from(executable);
     let compatibility = application_compatibility(&executable_path);
-    Ok(detected_application(
-        executable_display_name(&executable_path),
-        executable_path.to_string_lossy().into_owned(),
-        None,
-        ApplicationSource::FileAssociation,
-        Some(executable_path.to_string_lossy().into_owned()),
-        compatibility.compatible,
+    Ok(detected_application(DetectedApplicationDetails {
+        name: executable_display_name(&executable_path),
+        executable_path: executable_path.to_string_lossy().into_owned(),
+        shortcut_path: None,
+        source: ApplicationSource::FileAssociation,
+        icon_path: Some(executable_path.to_string_lossy().into_owned()),
+        valid: compatibility.compatible,
         compatibility,
-        is_installer_executable(&executable_path),
-    ))
+        is_installer: is_installer_executable(&executable_path),
+    }))
 }
 
 fn executable_display_name(path: &Path) -> String {
@@ -1440,7 +1457,7 @@ mod tests {
         );
         assert_eq!(
             process_start_executable_name("--processStart cmd.exe /c calc"),
-            Some("cmd.exe")
+            None
         );
     }
 

@@ -8,7 +8,6 @@ use chrono::{DateTime, SecondsFormat, Utc};
 use rusqlite::{params, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use tauri::State;
-use url::Url;
 use uuid::Uuid;
 
 use crate::{
@@ -16,6 +15,7 @@ use crate::{
     error::CommandError,
     models::{Resource, ResourceType, Workspace},
     resource_commands::RESOURCE_COLUMNS,
+    validation::{is_valid_hex_color, parse_http_url},
 };
 
 const SCHEMA_VERSION: u32 = 1;
@@ -103,6 +103,8 @@ pub fn export_workspace_template(
     input: ExportTemplateInput,
     database: State<'_, Database>,
 ) -> Result<TemplateExportResult, CommandError> {
+    let output_path = Path::new(&output_path);
+    validate_template_path(output_path, false)?;
     let input = validate_export_input(input)?;
     let connection = database.0.lock().map_err(|_| CommandError::lock())?;
     let workspace = connection
@@ -147,10 +149,10 @@ pub fn export_workspace_template(
     if json.len() as u64 > MAX_TEMPLATE_BYTES {
         return Err(template_error("생성된 템플릿이 1MB 제한을 초과합니다."));
     }
-    fs::write(&output_path, json)
+    fs::write(output_path, json)
         .map_err(|error| template_error(format!("파일 저장 실패: {error}")))?;
     Ok(TemplateExportResult {
-        path: output_path,
+        path: output_path.to_string_lossy().into_owned(),
         resource_count: template.resources.len(),
     })
 }
@@ -238,6 +240,7 @@ impl From<Resource> for TemplateResource {
 }
 
 fn read_and_validate_template(path: &Path) -> Result<WorkspaceTemplate, CommandError> {
+    validate_template_path(path, true)?;
     let file = File::open(path)
         .map_err(|error| template_error(format!("파일을 열 수 없습니다: {error}")))?;
     let mut bytes = Vec::new();
@@ -275,6 +278,16 @@ fn validate_template(mut template: WorkspaceTemplate) -> Result<WorkspaceTemplat
     )?;
     template.workspace.icon = optional("workspace.icon", template.workspace.icon, 200)?;
     template.workspace.color = optional("workspace.color", template.workspace.color, 100)?;
+    if template
+        .workspace
+        .color
+        .as_deref()
+        .is_some_and(|color| !is_valid_hex_color(color))
+    {
+        return Err(template_error(
+            "workspace.color: #RRGGBB 형식의 색상이어야 합니다.",
+        ));
+    }
     template.description = optional("description", template.description, 2_000)?;
     if template.resources.len() > MAX_TEMPLATE_RESOURCES {
         return Err(template_error(format!(
@@ -308,7 +321,7 @@ fn validate_template(mut template: WorkspaceTemplate) -> Result<WorkspaceTemplat
             )));
         }
         if matches!(resource.resource_type, ResourceType::Website)
-            && !valid_website_url(&resource.target)
+            && parse_http_url(&resource.target).is_none()
         {
             return Err(template_error(format!(
                 "resources[{index}].target: http:// 또는 https:// URL이어야 합니다."
@@ -403,11 +416,73 @@ fn optional(
     Ok((!value.is_empty()).then_some(value))
 }
 
-fn valid_website_url(target: &str) -> bool {
-    Url::parse(target)
-        .is_ok_and(|url| matches!(url.scheme(), "http" | "https") && url.host_str().is_some())
+fn validate_template_path(path: &Path, must_exist: bool) -> Result<(), CommandError> {
+    if !path.is_absolute() {
+        return Err(template_error("템플릿 파일은 절대 경로를 사용해야 합니다."));
+    }
+    let is_json = path
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("json"));
+    if !is_json {
+        return Err(template_error("템플릿은 .json 파일만 사용할 수 있습니다."));
+    }
+    if path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .is_some_and(|name| name.contains(':'))
+    {
+        return Err(template_error(
+            "Windows 대체 데이터 스트림 경로는 허용되지 않습니다.",
+        ));
+    }
+
+    match fs::symlink_metadata(path) {
+        Ok(metadata) => {
+            if metadata.file_type().is_symlink() || !metadata.is_file() {
+                return Err(template_error("일반 JSON 파일만 사용할 수 있습니다."));
+            }
+        }
+        Err(error) if must_exist => {
+            return Err(template_error(format!(
+                "템플릿 파일을 확인할 수 없습니다: {error}"
+            )));
+        }
+        Err(error) if error.kind() != std::io::ErrorKind::NotFound => {
+            return Err(template_error(format!(
+                "템플릿 경로를 확인할 수 없습니다: {error}"
+            )));
+        }
+        Err(_) => {
+            let parent = path
+                .parent()
+                .filter(|parent| parent.is_dir())
+                .ok_or_else(|| template_error("템플릿 저장 폴더가 존재하지 않습니다."))?;
+            if fs::symlink_metadata(parent)
+                .map(|metadata| metadata.file_type().is_symlink())
+                .unwrap_or(true)
+            {
+                return Err(template_error("심볼릭 링크 폴더에는 저장할 수 없습니다."));
+            }
+        }
+    }
+    Ok(())
 }
 
 fn template_error(message: impl Into<String>) -> CommandError {
     CommandError::new("TEMPLATE_VALIDATION_ERROR", message)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::validate_template_path;
+
+    #[test]
+    fn template_path_requires_absolute_json_file() {
+        assert!(validate_template_path(Path::new("template.json"), true).is_err());
+        let non_json = std::env::temp_dir().join("template.txt");
+        assert!(validate_template_path(&non_json, false).is_err());
+    }
 }

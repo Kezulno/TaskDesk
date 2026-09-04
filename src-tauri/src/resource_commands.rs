@@ -4,13 +4,13 @@ use std::path::Path;
 use chrono::{SecondsFormat, Utc};
 use rusqlite::{params, OptionalExtension};
 use tauri::State;
-use url::Url;
 use uuid::Uuid;
 
 use crate::{
     database::Database,
     error::CommandError,
     models::{Resource, ResourceInput},
+    validation::parse_http_url,
 };
 
 pub(crate) const RESOURCE_COLUMNS: &str =
@@ -218,7 +218,7 @@ fn validate_input(input: ResourceInput) -> Result<ResourceInput, CommandError> {
         validate_length("description", description, 2_000)?;
     }
     if matches!(input.resource_type, crate::models::ResourceType::Website)
-        && !is_valid_website_url(&input.target)
+        && parse_http_url(&input.target).is_none()
     {
         return Err(CommandError::invalid_resource(
             "target",
@@ -252,11 +252,6 @@ fn validate_length(field: &str, value: &str, max: usize) -> Result<(), CommandEr
         ));
     }
     Ok(())
-}
-
-fn is_valid_website_url(target: &str) -> bool {
-    Url::parse(target)
-        .is_ok_and(|url| matches!(url.scheme(), "http" | "https") && url.host_str().is_some())
 }
 
 fn normalize_windows_path(path: &str) -> String {

@@ -10,23 +10,24 @@ TaskDeck은 앱, 웹사이트, 폴더, 파일을 하나의 **작업 공간**으�
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-0.1.0-22c55e)
+![Version](https://img.shields.io/badge/version-0.1.1-22c55e)
 ![Language](https://img.shields.io/badge/UI-한국어%20%7C%20English-f59e0b)
 
 ## 바로 설치하기
 
 Windows 10/11 64비트에서 사용할 수 있습니다.
 
-### [TaskDeck 0.1.0 EXE 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64-setup.exe)
+### [TaskDeck 0.1.1 EXE 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64-setup.exe)
 
 대부분의 사용자는 위 EXE 파일을 받으면 됩니다.
 
-- [MSI 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64_en-US.msi) — 회사나 기관의 관리 배포용
+- [MSI 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64_en-US.msi) — 회사나 기관의 관리 배포용
+- [SHA-256 체크섬 확인](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/SHA256SUMS.txt)
 - [모든 버전과 업데이트 내용 보기](https://github.com/Kezulno/TaskDesk/releases)
 
-> 다운로드 링크는 GitHub에 `v0.1.0` Release와 설치 파일이 공개된 후 작동합니다. 현재 설치 파일은 코드 서명 전 개발 버전이므로 Windows SmartScreen 안내가 나타날 수 있습니다.
+> 설치 파일은 아직 코드 서명되지 않았으므로 Windows SmartScreen 안내가 나타날 수 있습니다. 다운로드 후 SHA-256 체크섬을 확인하세요.
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
+<img width="1536" height="1024" alt="TaskDeck workspace screen" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
 
 ## 이렇게 시작하세요
 
@@ -35,8 +36,6 @@ Windows 10/11 64비트에서 사용할 수 있습니다.
 3. **리소스 추가**에서 앱, 웹사이트, 폴더 또는 파일을 등록합니다.
 4. 각 항목의 위·아래 버튼으로 열리는 순서를 정합니다.
 5. **작업 환경 열기**를 누르면 활성화된 항목이 순서대로 열립니다.
-
-
 
 개별 항목의 **실행** 버튼을 누르거나 카드를 두 번 클릭해 하나만 열 수도 있습니다.
 
@@ -170,7 +169,7 @@ Windows 앱마다 설치 방식이 달라 100% 탐지는 어렵습니다. 찾지
 
 ### 개발 환경 준비
 
-- Node.js 20 이상과 npm
+- Node.js 22.12 이상과 npm 10 이상
 - Rust stable (`rustup`, `cargo`, `rustc`)
 - Microsoft C++ Build Tools의 **Desktop development with C++** 워크로드
 - Microsoft Edge WebView2 Runtime
@@ -189,13 +188,15 @@ npm run tauri dev
 ### 검사와 설치 파일 빌드
 
 ```powershell
-npm run format:check
-npm run typecheck
-npm run lint
+npm run check
 cargo test --manifest-path src-tauri/Cargo.toml
 cargo check --manifest-path src-tauri/Cargo.toml
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+cargo audit --file src-tauri/Cargo.lock
 npm run tauri build
 ```
+
+`npm run check`는 포맷, TypeScript, ESLint, 프론트엔드 테스트와 프로덕션 웹 빌드를 모두 검사합니다. 공개 배포 전에는 [릴리스 보안 체크리스트](docs/RELEASE_SECURITY.md)와 `scripts/release-check.ps1`을 사용하세요.
 
 생성된 설치 파일은 다음 폴더에서 찾을 수 있습니다.
 

@@ -3,7 +3,6 @@ use std::{collections::HashSet, path::Path, process::Command, sync::Mutex, time:
 use rusqlite::params;
 use serde::Serialize;
 use tauri::{Emitter, State, Window};
-use url::Url;
 
 use crate::{
     database::Database,
@@ -11,6 +10,7 @@ use crate::{
     models::{Resource, ResourceType},
     resource_commands::{find_resource, RESOURCE_COLUMNS},
     settings_commands::read_launch_interval,
+    validation::parse_http_url,
 };
 
 #[derive(Default)]
@@ -119,18 +119,12 @@ pub fn launch_resource(
 
 #[tauri::command]
 pub fn open_external_website(url: String) -> Result<(), CommandError> {
-    let parsed = Url::parse(url.trim()).map_err(|_| {
+    let parsed = parse_http_url(&url).ok_or_else(|| {
         CommandError::new(
             "INVALID_EXTERNAL_URL",
             "유효한 공식 웹사이트 주소가 아닙니다.",
         )
     })?;
-    if !matches!(parsed.scheme(), "http" | "https") || parsed.host_str().is_none() {
-        return Err(CommandError::new(
-            "INVALID_EXTERNAL_URL",
-            "http 또는 https 공식 웹사이트만 열 수 있습니다.",
-        ));
-    }
     shell_open(parsed.as_str()).map_err(|message| CommandError::new("OPEN_WEBSITE_FAILED", message))
 }
 
@@ -216,9 +210,7 @@ pub async fn launch_workspace_resources(
                 skipped: false,
                 message: result.message,
             };
-            if launch_attempts < valid_count && interval_ms > 0 {
-                tokio::time::sleep(Duration::from_millis(interval_ms)).await;
-            }
+            wait_between_launches(interval_ms, launch_attempts, valid_count).await;
             item
         };
         items.push(item);
@@ -255,6 +247,20 @@ fn build_batch_result(
         skipped,
         items,
     }
+}
+
+async fn wait_between_launches(interval_ms: u64, launch_attempts: usize, valid_count: usize) {
+    if should_wait_between_launches(interval_ms, launch_attempts, valid_count) {
+        tokio::time::sleep(Duration::from_millis(interval_ms)).await;
+    }
+}
+
+fn should_wait_between_launches(
+    interval_ms: u64,
+    launch_attempts: usize,
+    valid_count: usize,
+) -> bool {
+    interval_ms > 0 && launch_attempts < valid_count
 }
 
 fn launch_validated_resource(resource: &Resource) -> LaunchResult {
@@ -304,15 +310,16 @@ fn validate_target(resource: &Resource) -> ResourceValidationResult {
                 )
             }
         }
-        ResourceType::Website => match Url::parse(&resource.target) {
-            Ok(url) if matches!(url.scheme(), "http" | "https") && url.host_str().is_some() => {
+        ResourceType::Website => {
+            if parse_http_url(&resource.target).is_some() {
                 valid()
+            } else {
+                invalid(
+                    false,
+                    "http:// 또는 https:// 웹사이트 URL만 열 수 있습니다.",
+                )
             }
-            _ => invalid(
-                false,
-                "http:// 또는 https:// 웹사이트 URL만 열 수 있습니다.",
-            ),
-        },
+        }
         ResourceType::Folder => {
             if Path::new(&resource.target).is_dir() {
                 valid()
@@ -429,7 +436,12 @@ fn shell_open(_target: &str) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{build_batch_result, validate_target, BatchLaunchItemResult};
+    use std::time::{Duration, Instant};
+
+    use super::{
+        build_batch_result, parse_http_url, should_wait_between_launches, validate_target,
+        wait_between_launches, BatchLaunchItemResult,
+    };
     use crate::models::{Resource, ResourceType};
 
     fn website(target: &str) -> Resource {
@@ -459,12 +471,10 @@ mod tests {
     #[test]
     fn external_url_allows_only_http_and_https() {
         for url in ["https://example.com", "http://example.com"] {
-            let parsed = url::Url::parse(url).expect("parse safe URL");
-            assert!(matches!(parsed.scheme(), "http" | "https"));
+            assert!(parse_http_url(url).is_some());
         }
         for url in ["file:///C:/Windows", "javascript:alert(1)"] {
-            let parsed = url::Url::parse(url).expect("parse blocked URL");
-            assert!(!matches!(parsed.scheme(), "http" | "https"));
+            assert!(parse_http_url(url).is_none());
         }
     }
 
@@ -485,5 +495,19 @@ mod tests {
         assert_eq!(result.succeeded, 1);
         assert_eq!(result.failed, 1);
         assert_eq!(result.skipped, 1);
+    }
+
+    #[test]
+    fn batch_launch_waits_between_valid_launches_only() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .expect("build Tokio runtime");
+
+        let started = Instant::now();
+        runtime.block_on(wait_between_launches(50, 1, 2));
+        assert!(started.elapsed() >= Duration::from_millis(45));
+        assert!(!should_wait_between_launches(50, 2, 2));
+        assert!(!should_wait_between_launches(0, 1, 2));
     }
 }

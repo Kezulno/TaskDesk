@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 
 import { settingsApi } from "@/features/settings/settingsApi";
+import { normalizeLaunchInterval } from "@/features/settings/launchInterval";
 import { errorMessage } from "@/lib/errors";
 import type { Language } from "@/features/i18n/i18n";
 
@@ -17,7 +18,17 @@ interface SettingsState {
   setAutoStartValue: (value: boolean) => void;
   setLanguageValue: (value: Language) => void;
   fetchSettings: () => Promise<void>;
+  saveLaunchInterval: (value: number) => Promise<number>;
   saveSettings: () => Promise<void>;
+}
+
+async function persistLaunchInterval(value: number): Promise<number> {
+  const savedValue = await settingsApi.setLaunchInterval(normalizeLaunchInterval(value));
+  const confirmedValue = await settingsApi.getLaunchInterval();
+  if (savedValue !== confirmedValue) {
+    throw new Error("저장된 실행 간격을 확인하지 못했습니다.");
+  }
+  return confirmedValue;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -48,13 +59,27 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     }
   },
 
+  saveLaunchInterval: async (requestedValue) => {
+    const value = normalizeLaunchInterval(requestedValue);
+    set({ isLoading: true, error: null });
+    try {
+      const launchIntervalMs = await persistLaunchInterval(value);
+      set({ launchIntervalMs, isLoading: false });
+      return launchIntervalMs;
+    } catch (error: unknown) {
+      const message = errorMessage(error, "실행 간격을 저장하지 못했습니다.");
+      set({ error: message, isLoading: false });
+      throw new Error(message, { cause: error });
+    }
+  },
+
   saveSettings: async () => {
-    const value = Math.min(5_000, Math.max(0, Math.round(get().launchIntervalMs)));
+    const value = normalizeLaunchInterval(get().launchIntervalMs);
     const { closeToTray, autoStart, language } = get();
     set({ isLoading: true, error: null, launchIntervalMs: value });
     try {
       const [launchIntervalMs, savedCloseToTray, , savedLanguage] = await Promise.all([
-        settingsApi.setLaunchInterval(value),
+        persistLaunchInterval(value),
         settingsApi.setCloseToTray(closeToTray),
         autoStart ? enable() : disable(),
         settingsApi.setLanguage(language),

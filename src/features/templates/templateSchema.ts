@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isValidHexColor, isValidHttpUrl } from "@/lib/validation";
+
 const resourceTypeSchema = z.enum(["application", "website", "folder", "file"]);
 
 const templateResourceBaseSchema = z
@@ -15,13 +17,7 @@ const templateResourceBaseSchema = z
   .strict();
 
 function websiteTargetIsValid(value: { type: string; target: string }): boolean {
-  if (value.type !== "website") return true;
-  try {
-    const url = new URL(value.target);
-    return (url.protocol === "http:" || url.protocol === "https:") && url.hostname.length > 0;
-  } catch {
-    return false;
-  }
+  return value.type !== "website" || isValidHttpUrl(value.target);
 }
 
 export const templateResourceSchema = templateResourceBaseSchema.refine(websiteTargetIsValid, {
@@ -44,7 +40,7 @@ export const workspaceTemplateSchema = z
         name: z.string().trim().min(1).max(120),
         description: z.string().max(2000).nullable(),
         icon: z.string().max(200).nullable(),
-        color: z.string().max(100).nullable(),
+        color: z.string().refine(isValidHexColor).nullable(),
       })
       .strict(),
     resources: z.array(templateResourceSchema).max(200),

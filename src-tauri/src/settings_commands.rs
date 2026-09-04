@@ -35,6 +35,14 @@ pub fn set_launch_interval(
     interval_ms: u64,
     database: State<'_, Database>,
 ) -> Result<u64, CommandError> {
+    let connection = database.0.lock().map_err(|_| CommandError::lock())?;
+    write_launch_interval(&connection, interval_ms)
+}
+
+pub(crate) fn write_launch_interval(
+    connection: &Connection,
+    interval_ms: u64,
+) -> Result<u64, CommandError> {
     if interval_ms > MAX_LAUNCH_INTERVAL_MS {
         return Err(CommandError::new(
             "INVALID_LAUNCH_INTERVAL",
@@ -42,7 +50,6 @@ pub fn set_launch_interval(
         ));
     }
     let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
-    let connection = database.0.lock().map_err(|_| CommandError::lock())?;
     connection.execute(
         "INSERT INTO settings (key, value, updated_at) VALUES ('launch_interval_ms', ?1, ?2)
          ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
@@ -135,4 +142,63 @@ pub fn set_language(
         params![language, now],
     )?;
     Ok(language)
+}
+
+#[cfg(test)]
+mod tests {
+    use rusqlite::Connection;
+
+    use super::{read_launch_interval, write_launch_interval, DEFAULT_LAUNCH_INTERVAL_MS};
+
+    fn settings_connection() -> Connection {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(
+                "CREATE TABLE settings (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                INSERT INTO settings (key, value, updated_at)
+                VALUES ('launch_interval_ms', '500', CURRENT_TIMESTAMP);",
+            )
+            .expect("create settings table");
+        connection
+    }
+
+    #[test]
+    fn launch_interval_is_persisted_and_read_back() {
+        let connection = settings_connection();
+
+        assert_eq!(write_launch_interval(&connection, 1_250).unwrap(), 1_250);
+        assert_eq!(read_launch_interval(&connection).unwrap(), 1_250);
+    }
+
+    #[test]
+    fn launch_interval_rejects_values_above_maximum() {
+        let connection = settings_connection();
+        let error = write_launch_interval(&connection, 5_001).unwrap_err();
+
+        assert_eq!(error.code, "INVALID_LAUNCH_INTERVAL");
+        assert_eq!(
+            read_launch_interval(&connection).unwrap(),
+            DEFAULT_LAUNCH_INTERVAL_MS
+        );
+    }
+
+    #[test]
+    fn invalid_stored_launch_interval_falls_back_to_default() {
+        let connection = settings_connection();
+        connection
+            .execute(
+                "UPDATE settings SET value = 'not-a-number' WHERE key = 'launch_interval_ms'",
+                [],
+            )
+            .expect("write invalid launch interval");
+
+        assert_eq!(
+            read_launch_interval(&connection).unwrap(),
+            DEFAULT_LAUNCH_INTERVAL_MS
+        );
+    }
 }

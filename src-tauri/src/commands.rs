@@ -7,6 +7,7 @@ use crate::{
     database::Database,
     error::CommandError,
     models::{Workspace, WorkspaceInput},
+    validation::is_valid_hex_color,
 };
 
 const WORKSPACE_COLUMNS: &str =
@@ -227,6 +228,16 @@ fn validate_workspace_input(input: WorkspaceInput) -> Result<WorkspaceInput, Com
     validate_optional_length("description", input.description.as_deref(), 2_000)?;
     validate_optional_length("icon", input.icon.as_deref(), 200)?;
     validate_optional_length("color", input.color.as_deref(), 100)?;
+    if input
+        .color
+        .as_deref()
+        .is_some_and(|color| !is_valid_hex_color(color))
+    {
+        return Err(CommandError::new(
+            "INVALID_WORKSPACE_COLOR",
+            "워크스페이스 색상은 #RRGGBB 형식이어야 합니다.",
+        ));
+    }
     Ok(input)
 }
 

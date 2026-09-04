@@ -31,6 +31,19 @@ const translations = {
     ko: "최소 0ms · 기본 500ms · 최대 5000ms",
     en: "Minimum 0ms · Default 500ms · Maximum 5000ms",
   },
+  intervalSaveNotice: {
+    ko: "값을 변경한 뒤 간격 적용 또는 설정 저장을 눌러야 다음 작업 환경 실행부터 반영됩니다.",
+    en: "After changing the value, select Apply interval or Save settings. It applies to the next workspace launch.",
+  },
+  applyInterval: { ko: "간격 적용", en: "Apply interval" },
+  intervalSaved: {
+    ko: "리소스 실행 간격을 {value}ms로 저장했습니다.",
+    en: "Resource launch interval saved as {value}ms.",
+  },
+  intervalInvalid: {
+    ko: "0에서 5000 사이의 정수를 입력해 주세요.",
+    en: "Enter a whole number between 0 and 5000.",
+  },
   systemTray: { ko: "시스템 트레이", en: "System tray" },
   systemTrayDescription: {
     ko: "창의 닫기 버튼을 눌렀을 때 TaskDeck을 종료하지 않고 알림 영역으로 숨깁니다.",

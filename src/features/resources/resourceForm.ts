@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isValidHttpUrl } from "@/lib/validation";
+
 export const resourceFormSchema = z
   .object({
     type: z.enum(["application", "website", "folder", "file"]),
@@ -10,7 +12,7 @@ export const resourceFormSchema = z
     isEnabled: z.boolean(),
   })
   .superRefine((value, context) => {
-    if (value.type === "website" && !isValidWebsiteUrl(value.target)) {
+    if (value.type === "website" && !isValidHttpUrl(value.target)) {
       context.addIssue({
         code: "custom",
         path: ["target"],
@@ -18,14 +20,5 @@ export const resourceFormSchema = z
       });
     }
   });
-
-function isValidWebsiteUrl(target: string): boolean {
-  try {
-    const url = new URL(target);
-    return (url.protocol === "http:" || url.protocol === "https:") && url.hostname.length > 0;
-  } catch {
-    return false;
-  }
-}
 
 export type ResourceFormValues = z.infer<typeof resourceFormSchema>;

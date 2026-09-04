@@ -1,6 +1,6 @@
 [package]
 name = "taskdeck"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Windows-first workspace launcher"
 authors = ["TaskDeck contributors"]
 license = "MIT"
@@ -17,7 +17,7 @@ tauri-build = { version = "2", features = [] }
 chrono = { version = "0.4", features = ["serde"] }
 base64 = "0.22"
 png = "0.17"
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.32", features = ["backup", "bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_path_to_error = "0.1"

@@ -7,6 +7,7 @@ mod resource_commands;
 mod scan_commands;
 mod settings_commands;
 mod template_commands;
+mod validation;
 
 use database::Database;
 use launch_commands::BatchLaunchState;

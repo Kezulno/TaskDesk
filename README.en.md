@@ -10,21 +10,24 @@ No account or backend server is required. Your workspaces and settings stay on y
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-0.1.0-22c55e)
+![Version](https://img.shields.io/badge/version-0.1.1-22c55e)
 ![Language](https://img.shields.io/badge/UI-Korean%20%7C%20English-f59e0b)
 
 ## Download
 
 TaskDeck supports 64-bit Windows 10 and Windows 11.
 
-### [Download TaskDeck 0.1.0 for Windows](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64-setup.exe)
+### [Download TaskDeck 0.1.1 for Windows](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64-setup.exe)
 
 The EXE installer above is recommended for most users.
 
-- [Download the MSI installer](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.0/TaskDeck_0.1.0_x64_en-US.msi) — intended for managed or organizational deployment
+- [Download the MSI installer](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64_en-US.msi) — intended for managed or organizational deployment
+- [Verify SHA-256 checksums](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/SHA256SUMS.txt)
 - [View all releases and release notes](https://github.com/Kezulno/TaskDesk/releases)
 
-> Direct download links will work after the `v0.1.0` GitHub Release and its installer assets are published. The current development build is not code-signed, so Windows SmartScreen may display a warning.
+> The installers are not code-signed yet, so Windows SmartScreen may display a warning. Verify the SHA-256 checksum after downloading.
+
+<img width="1536" height="1024" alt="TaskDeck workspace screen" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
 
 ## Get started
 
@@ -166,7 +169,7 @@ No. Deleting a workspace removes only its TaskDeck configuration. It does not un
 
 ### Prerequisites
 
-- Node.js 20 or newer and npm
+- Node.js 22.12 or newer and npm 10 or newer
 - Rust stable (`rustup`, `cargo`, and `rustc`)
 - The **Desktop development with C++** workload from Microsoft C++ Build Tools
 - Microsoft Edge WebView2 Runtime
@@ -185,13 +188,15 @@ npm run tauri dev
 ### Checks and production build
 
 ```powershell
-npm run format:check
-npm run typecheck
-npm run lint
+npm run check
 cargo test --manifest-path src-tauri/Cargo.toml
 cargo check --manifest-path src-tauri/Cargo.toml
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+cargo audit --file src-tauri/Cargo.lock
 npm run tauri build
 ```
+
+`npm run check` runs formatting, TypeScript, ESLint, frontend tests, and the production web build. Before publishing, use the [release security checklist](docs/RELEASE_SECURITY.md) and `scripts/release-check.ps1`.
 
 Windows installers are generated in:
 

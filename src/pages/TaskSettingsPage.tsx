@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/FormField";
 import { PageHeader } from "@/components/common/PageHeader";
 import { useSettingsStore } from "@/features/settings/settingsStore";
+import { parseLaunchInterval } from "@/features/settings/launchInterval";
 import { useI18n, type Language } from "@/features/i18n/i18n";
 
 export function TaskSettingsPage() {
@@ -20,14 +21,43 @@ export function TaskSettingsPage() {
   const setAutoStartValue = useSettingsStore((state) => state.setAutoStartValue);
   const setLanguageValue = useSettingsStore((state) => state.setLanguageValue);
   const fetchSettings = useSettingsStore((state) => state.fetchSettings);
+  const saveLaunchInterval = useSettingsStore((state) => state.saveLaunchInterval);
   const saveSettings = useSettingsStore((state) => state.saveSettings);
+  const [intervalDraft, setIntervalDraft] = useState(String(launchIntervalMs));
+
+  const parsedInterval = parseLaunchInterval(intervalDraft);
 
   useEffect(() => {
-    void fetchSettings();
+    let cancelled = false;
+    void fetchSettings().then(() => {
+      if (!cancelled) {
+        setIntervalDraft(String(useSettingsStore.getState().launchIntervalMs));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [fetchSettings]);
 
-  const save = async () => {
+  const selectInterval = (value: number) => {
+    setIntervalDraft(String(value));
+    setLaunchIntervalValue(value);
+  };
+
+  const applyInterval = async () => {
+    if (parsedInterval === null) return;
     try {
+      const savedValue = await saveLaunchInterval(parsedInterval);
+      toast.success(t("intervalSaved", { value: savedValue }));
+    } catch (saveError: unknown) {
+      toast.error(saveError instanceof Error ? saveError.message : t("settingsSaveFailed"));
+    }
+  };
+
+  const save = async () => {
+    if (parsedInterval === null) return;
+    try {
+      setLaunchIntervalValue(parsedInterval);
       await saveSettings();
       toast.success(t("settingsSaved"));
     } catch (saveError: unknown) {
@@ -67,13 +97,49 @@ export function TaskSettingsPage() {
                 min={0}
                 max={5000}
                 step={100}
-                value={launchIntervalMs}
+                value={intervalDraft}
                 disabled={isLoading}
-                onChange={(event) => setLaunchIntervalValue(Number(event.target.value))}
+                aria-invalid={parsedInterval === null}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setIntervalDraft(nextValue);
+                  const parsed = Number(nextValue);
+                  if (
+                    nextValue.trim() !== "" &&
+                    Number.isInteger(parsed) &&
+                    parsed >= 0 &&
+                    parsed <= 5_000
+                  ) {
+                    setLaunchIntervalValue(parsed);
+                  }
+                }}
               />
             </label>
+            <Button
+              onClick={() => void applyInterval()}
+              disabled={isLoading || parsedInterval === null}
+            >
+              {t("applyInterval")}
+            </Button>
           </div>
-          <p className="text-muted-foreground mt-2 text-xs">{t("intervalRange")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[0, 500, 1_000, 2_000].map((value) => (
+              <Button
+                key={value}
+                variant={parsedInterval === value ? "default" : "secondary"}
+                className="h-8 px-3 text-xs"
+                onClick={() => selectInterval(value)}
+                disabled={isLoading}
+              >
+                {value >= 1_000 ? `${value / 1_000}s` : `${value}ms`}
+              </Button>
+            ))}
+          </div>
+          <p className="text-muted-foreground mt-3 text-xs">{t("intervalRange")}</p>
+          <p className="text-muted-foreground mt-1 text-xs">{t("intervalSaveNotice")}</p>
+          {parsedInterval === null && (
+            <p className="text-destructive mt-2 text-xs">{t("intervalInvalid")}</p>
+          )}
           {error && <p className="text-destructive mt-3 text-sm">{error}</p>}
         </div>
 
@@ -109,7 +175,7 @@ export function TaskSettingsPage() {
 
         <div className="flex items-center justify-end gap-3">
           {error && <p className="text-destructive mr-auto text-sm">{error}</p>}
-          <Button onClick={() => void save()} disabled={isLoading}>
+          <Button onClick={() => void save()} disabled={isLoading || parsedInterval === null}>
             {isLoading ? t("saving") : t("saveSettings")}
           </Button>
         </div>
