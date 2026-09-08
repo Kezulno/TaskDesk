@@ -1349,11 +1349,11 @@ fn application_icon_data_url(path: &Path) -> Result<Option<String>, CommandError
     };
     let bgra = unsafe { std::slice::from_raw_parts(bits.cast::<u8>(), ICON_SIZE * ICON_SIZE * 4) };
     let mut rgba = Vec::with_capacity(bgra.len());
-    for pixel in bgra.chunks_exact(4) {
+    for pixel in bgra.as_chunks::<4>().0 {
         rgba.extend_from_slice(&[pixel[2], pixel[1], pixel[0], pixel[3]]);
     }
-    if rgba.chunks_exact(4).all(|pixel| pixel[3] == 0) {
-        for pixel in rgba.chunks_exact_mut(4) {
+    if rgba.as_chunks::<4>().0.iter().all(|pixel| pixel[3] == 0) {
+        for pixel in rgba.as_chunks_mut::<4>().0 {
             if pixel[0] != 0 || pixel[1] != 0 || pixel[2] != 0 {
                 pixel[3] = 255;
             }
