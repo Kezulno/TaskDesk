@@ -3121,7 +3121,7 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "lnks",
- "png 0.17.16",
+ "png 0.18.1",
  "rusqlite",
  "serde",
  "serde_json",
