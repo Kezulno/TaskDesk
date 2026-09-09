@@ -10,22 +10,23 @@ TaskDeck은 앱, 웹사이트, 폴더, 파일을 하나의 **작업 공간**으�
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-0.1.1-22c55e)
+![Version](https://img.shields.io/badge/version-0.1.2-22c55e)
 ![Language](https://img.shields.io/badge/UI-한국어%20%7C%20English-f59e0b)
 
 ## 바로 설치하기
 
 Windows 10/11 64비트에서 사용할 수 있습니다.
 
-### [TaskDeck 0.1.1 EXE 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64-setup.exe)
+### [TaskDeck 0.1.2 EXE 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_x64-setup.exe)
 
 대부분의 사용자는 위 EXE 파일을 받으면 됩니다.
 
-- [MSI 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64_en-US.msi) — 회사나 기관의 관리 배포용
-- [SHA-256 체크섬 확인](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/SHA256SUMS.txt)
+- [MSI 설치 파일 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_x64_en-US.msi) — 회사나 기관의 관리 배포용
+- [포터블 EXE 받기](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_portable.exe) — 설치하지 않고 직접 실행
+- [SHA-256 체크섬 확인](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/SHA256SUMS.txt)
 - [모든 버전과 업데이트 내용 보기](https://github.com/Kezulno/TaskDesk/releases)
 
-> 설치 파일은 아직 코드 서명되지 않았으므로 Windows SmartScreen 안내가 나타날 수 있습니다. 다운로드 후 SHA-256 체크섬을 확인하세요.
+> 설치 파일과 포터블 EXE는 아직 코드 서명되지 않았으므로 Windows SmartScreen 안내가 나타날 수 있습니다. 포터블 버전은 설치·시작 메뉴 등록·제거 프로그램 등록을 하지 않으며, 실행하려면 Microsoft Edge WebView2 Runtime이 필요합니다. 다운로드 후 SHA-256 체크섬을 확인하세요.
 
 <img width="1536" height="1024" alt="TaskDeck workspace screen" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
 

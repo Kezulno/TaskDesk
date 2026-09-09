@@ -5,7 +5,7 @@ use std::{
 };
 
 use chrono::{DateTime, SecondsFormat, Utc};
-use rusqlite::{params, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 use uuid::Uuid;
@@ -107,15 +107,24 @@ pub fn export_workspace_template(
     validate_template_path(output_path, false)?;
     let input = validate_export_input(input)?;
     let connection = database.0.lock().map_err(|_| CommandError::lock())?;
+    export_workspace_template_to_path(&connection, &workspace_id, output_path, input)
+}
+
+fn export_workspace_template_to_path(
+    connection: &Connection,
+    workspace_id: &str,
+    output_path: &Path,
+    input: ExportTemplateInput,
+) -> Result<TemplateExportResult, CommandError> {
     let workspace = connection
         .query_row(
-            "SELECT id, name, description, icon, color, created_at, updated_at
+            "SELECT id, name, description, icon, color, is_favorite, created_at, updated_at
              FROM workspaces WHERE id = ?1",
             params![workspace_id],
             Workspace::from_row,
         )
         .optional()?
-        .ok_or_else(|| CommandError::not_found(&workspace_id))?;
+        .ok_or_else(|| CommandError::not_found(workspace_id))?;
     let mut statement = connection.prepare(&format!(
         "SELECT {RESOURCE_COLUMNS} FROM resources
          WHERE workspace_id = ?1 ORDER BY launch_order ASC, created_at ASC"
@@ -172,6 +181,13 @@ pub fn import_workspace_template(
 ) -> Result<TemplateImportResult, CommandError> {
     let template = read_and_validate_template(Path::new(&input_path))?;
     let mut connection = database.0.lock().map_err(|_| CommandError::lock())?;
+    import_workspace_template_into_connection(&mut connection, template)
+}
+
+fn import_workspace_template_into_connection(
+    connection: &mut Connection,
+    template: WorkspaceTemplate,
+) -> Result<TemplateImportResult, CommandError> {
     let transaction = connection.transaction()?;
     let workspace_name = unique_workspace_name(&transaction, &template.workspace.name)?;
     let workspace_id = Uuid::new_v4().to_string();
@@ -212,7 +228,7 @@ pub fn import_workspace_template(
     transaction.commit()?;
     let workspace = connection
         .query_row(
-            "SELECT id, name, description, icon, color, created_at, updated_at
+            "SELECT id, name, description, icon, color, is_favorite, created_at, updated_at
              FROM workspaces WHERE id = ?1",
             params![workspace_id],
             Workspace::from_row,
@@ -475,14 +491,119 @@ fn template_error(message: impl Into<String>) -> CommandError {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use std::{fs, path::Path};
 
-    use super::validate_template_path;
+    use rusqlite::{params, Connection};
+    use uuid::Uuid;
+
+    use super::{
+        export_workspace_template_to_path, import_workspace_template_into_connection,
+        read_and_validate_template, validate_export_input, validate_template_path,
+        ExportTemplateInput,
+    };
 
     #[test]
     fn template_path_requires_absolute_json_file() {
         assert!(validate_template_path(Path::new("template.json"), true).is_err());
         let non_json = std::env::temp_dir().join("template.txt");
         assert!(validate_template_path(&non_json, false).is_err());
+    }
+
+    #[test]
+    fn workspace_template_round_trip_preserves_configuration() {
+        let mut connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(
+                "CREATE TABLE workspaces (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    icon TEXT,
+                    color TEXT,
+                    is_favorite INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE TABLE resources (
+                    id TEXT PRIMARY KEY,
+                    workspace_id TEXT NOT NULL,
+                    type TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    target TEXT NOT NULL,
+                    icon TEXT,
+                    description TEXT,
+                    launch_order INTEGER NOT NULL,
+                    is_enabled INTEGER NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );",
+            )
+            .expect("create template test schema");
+        connection
+            .execute(
+                "INSERT INTO workspaces
+                 (id, name, description, icon, color, is_favorite, created_at, updated_at)
+                 VALUES (?1, 'Forensics', 'Analysis tools', 'shield', '#6366f1', 1, ?2, ?2)",
+                params!["workspace-1", "2026-09-08T00:00:00.000Z"],
+            )
+            .expect("insert workspace");
+        connection
+            .execute_batch(
+                "INSERT INTO resources
+                 (id, workspace_id, type, name, target, icon, description, launch_order,
+                  is_enabled, created_at, updated_at)
+                 VALUES
+                 ('resource-website', 'workspace-1', 'website', 'CyberChef',
+                  'https://gchq.github.io/CyberChef/', NULL, NULL, 1, 1,
+                  '2026-09-08T00:00:00.000Z', '2026-09-08T00:00:00.000Z'),
+                 ('resource-app', 'workspace-1', 'application', 'Tool',
+                  'C:\\Tools\\Tool.exe', NULL, 'Local tool', 0, 0,
+                  '2026-09-08T00:00:00.000Z', '2026-09-08T00:00:00.000Z');",
+            )
+            .expect("insert resources");
+
+        let output_path = std::env::temp_dir().join(format!(
+            "taskdeck-template-round-trip-{}.json",
+            Uuid::new_v4()
+        ));
+        let input = validate_export_input(ExportTemplateInput {
+            name: "Forensics template".to_owned(),
+            description: Some("Portable configuration".to_owned()),
+            author: "TaskDeck test".to_owned(),
+            category: "security".to_owned(),
+        })
+        .expect("validate export input");
+
+        let exported =
+            export_workspace_template_to_path(&connection, "workspace-1", &output_path, input)
+                .expect("export workspace template");
+        assert_eq!(exported.resource_count, 2);
+
+        let json: serde_json::Value = serde_json::from_slice(
+            &fs::read(&output_path).expect("read exported workspace template"),
+        )
+        .expect("parse exported workspace template");
+        assert_eq!(json["schemaVersion"], 1);
+        assert_eq!(json["workspace"]["name"], "Forensics");
+        assert!(json["workspace"].get("id").is_none());
+        assert_eq!(json["resources"][0]["name"], "Tool");
+        assert!(json["resources"][0].get("id").is_none());
+        assert!(json["resources"][0].get("workspaceId").is_none());
+
+        let validated = read_and_validate_template(&output_path).expect("validate exported file");
+        let imported = import_workspace_template_into_connection(&mut connection, validated)
+            .expect("import exported template");
+        assert_eq!(imported.workspace.name, "Forensics (2)");
+        assert_eq!(imported.resource_count, 2);
+        let imported_resource_count: usize = connection
+            .query_row(
+                "SELECT COUNT(*) FROM resources WHERE workspace_id = ?1",
+                params![imported.workspace.id],
+                |row| row.get(0),
+            )
+            .expect("count imported resources");
+        assert_eq!(imported_resource_count, 2);
+
+        fs::remove_file(output_path).expect("remove exported template");
     }
 }

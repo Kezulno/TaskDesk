@@ -10,22 +10,23 @@ No account or backend server is required. Your workspaces and settings stay on y
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-0.1.1-22c55e)
+![Version](https://img.shields.io/badge/version-0.1.2-22c55e)
 ![Language](https://img.shields.io/badge/UI-Korean%20%7C%20English-f59e0b)
 
 ## Download
 
 TaskDeck supports 64-bit Windows 10 and Windows 11.
 
-### [Download TaskDeck 0.1.1 for Windows](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64-setup.exe)
+### [Download TaskDeck 0.1.2 for Windows](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_x64-setup.exe)
 
 The EXE installer above is recommended for most users.
 
-- [Download the MSI installer](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/TaskDeck_0.1.1_x64_en-US.msi) — intended for managed or organizational deployment
-- [Verify SHA-256 checksums](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.1/SHA256SUMS.txt)
+- [Download the MSI installer](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_x64_en-US.msi) — intended for managed or organizational deployment
+- [Download the portable EXE](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/TaskDeck_0.1.2_portable.exe) — run without installation
+- [Verify SHA-256 checksums](https://github.com/Kezulno/TaskDesk/releases/download/v0.1.2/SHA256SUMS.txt)
 - [View all releases and release notes](https://github.com/Kezulno/TaskDesk/releases)
 
-> The installers are not code-signed yet, so Windows SmartScreen may display a warning. Verify the SHA-256 checksum after downloading.
+> The installers and portable EXE are not code-signed yet, so Windows SmartScreen may display a warning. The portable build does not create an installation, Start menu entry, or uninstaller, and requires Microsoft Edge WebView2 Runtime. Verify the SHA-256 checksum after downloading.
 
 <img width="1536" height="1024" alt="TaskDeck workspace screen" src="https://github.com/user-attachments/assets/b3cd0623-4d7a-4713-8f4a-889d823bc998" />
 

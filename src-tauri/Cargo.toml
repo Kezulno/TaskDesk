@@ -1,6 +1,6 @@
 [package]
 name = "taskdeck"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Windows-first workspace launcher"
 authors = ["TaskDeck contributors"]
 license = "MIT"
